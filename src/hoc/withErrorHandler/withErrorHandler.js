@@ -2,24 +2,28 @@ import React, { Component } from "react";
 
 import Modal from "../../components/UI/Modal/Modal";
 import Aux from "../Aux/Aux";
-import { render } from "@testing-library/react";
 
 const WithErrorHandler = (WrappedContent, axios) => {
   return class extends Component {
     state = { error: null };
 
     componentWillMount() {
-      axios.interceptors.response.use((req) => {
+      this.reqInterceptor = axios.interceptors.response.use((req) => {
         this.setState({ error: null });
         return req;
       });
 
-      axios.interceptors.response.use(
+      this.resInterceptor = axios.interceptors.response.use(
         (res) => res,
         (error) => {
           this.setState({ error: error });
         }
       );
+    }
+
+    componentWillUnmount() {
+      axios.interceptors.request.eject(this.reqInterceptor)
+      axios.interceptors.response.eject(this.resInterceptor)
     }
 
     errorConfirmedHandler = () => {
